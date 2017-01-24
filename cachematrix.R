@@ -1,22 +1,22 @@
-# Matrix inversion is usually a costly computation and there may be some benefit
-# to caching the inverse of a matrix rather than compute it repeatedly. The
-# following two functions are used to cache the inverse of a matrix.
+
 
 # makeCacheMatrix creates a list containing a function to
 # 1. set the value of the matrix
 # 2. get the value of the matrix
 # 3. set the value of inverse of the matrix
 # 4. get the value of inverse of the matrix
-makeCacheMatrix <- function(x = matrix()) {
-    inv <- NULL
-    set <- function(y) {
+makeCacheMatrix <- function(x = matrix()){
+    m <- NULL
+    set <- function(y){
         x <<- y
-        inv <<- NULL
+        m <<- NULL
     }
     get <- function() x
-    setinverse <- function(inverse) inv <<- inverse
-    getinverse <- function() inv
-    list(set=set, get=get, setinverse=setinverse, getinverse=getinverse)
+    setinverse <- function(inv) m <<- inv
+    getinverse <- function() m
+    list(set = set, get = get,
+    setinverse = setinverse,
+    getinverse = getinverse)
 }
 
 
@@ -27,35 +27,14 @@ makeCacheMatrix <- function(x = matrix()) {
 
 # This function assumes that the matrix is always invertible.
 cacheSolve <- function(x, ...) {
-    inv <- x$getinverse()
-    if(!is.null(inv)) {
-        message("getting cached data.")
-        return(inv)
+    m <- x$getinverse()
+    if(!is.null(m)) {
+        message("getting cached data")
+        return(m)
     }
     data <- x$get()
-    inv <- solve(data)
-    x$setinverse(inv)
-    inv
+    m <- solve(data)
+    x$setinverse(m)
+    message("no cached data")
+    m
 }
-
-## Sample run:
-## > x = rbind(c(1, -1/4), c(-1/4, 1))
-## > m = makeCacheMatrix(x)
-## > m$get()
-##       [,1]  [,2]
-## [1,]  1.00 -0.25
-## [2,] -0.25  1.00
-
-## No cache in the first run
-## > cacheSolve(m)
-##           [,1]      [,2]
-## [1,] 1.0666667 0.2666667
-## [2,] 0.2666667 1.0666667
-
-## Retrieving from the cache in the second run
-## > cacheSolve(m)
-## getting cached data.
-##           [,1]      [,2]
-## [1,] 1.0666667 0.2666667
-## [2,] 0.2666667 1.0666667
-## > 
